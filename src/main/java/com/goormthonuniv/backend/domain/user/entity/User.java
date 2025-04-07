@@ -4,6 +4,8 @@ import com.goormthonuniv.backend.domain.user.dto.UserSignupRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AccessLevel;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
