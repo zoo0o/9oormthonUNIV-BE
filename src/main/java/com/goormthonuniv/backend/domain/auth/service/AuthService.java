@@ -2,6 +2,7 @@ package com.goormthonuniv.backend.domain.auth.service;
 
 import com.goormthonuniv.backend.domain.auth.dto.LoginRequest;
 import com.goormthonuniv.backend.domain.auth.dto.LoginResponse;
+import com.goormthonuniv.backend.domain.auth.dto.SignupRequest;
 import com.goormthonuniv.backend.domain.user.entity.User;
 import com.goormthonuniv.backend.domain.user.repository.UserRepository;
 import com.goormthonuniv.backend.global.jwt.JwtProvider;
@@ -27,5 +28,14 @@ public class AuthService {
 
         String token = jwtProvider.generateToken(user.getUsername());
         return new LoginResponse(token);
+    }
+
+    public void signup(SignupRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
+        }
+
+        User user = User.from(request, passwordEncoder);
+        userRepository.save(user);
     }
 }
