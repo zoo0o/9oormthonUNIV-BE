@@ -1,4 +1,4 @@
-package com.goormthonuniv.backend.domain.auth.dto;
+package com.goormthonuniv.backend.domain.user.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

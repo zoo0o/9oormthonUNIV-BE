@@ -1,12 +1,10 @@
 package com.goormthonuniv.backend.domain.user.entity;
 
-import com.goormthonuniv.backend.domain.auth.dto.SignupRequest;
+import com.goormthonuniv.backend.domain.user.dto.SignupRequest;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -25,11 +23,15 @@ public class User {
     @Column(nullable = false)
     private String nickname;
 
-    public static User from(SignupRequest dto, PasswordEncoder encoder) {
-        User user = new User();
-        user.username = dto.getUsername();
-        user.password = encoder.encode(dto.getPassword());
-        user.nickname = dto.getNickname();
-        return user;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    public User(String username, String password, String nickname, Role role) {
+        this.username = username;
+        this.password = password;
+        this.nickname = nickname;
+        this.role = role;
     }
+
 }

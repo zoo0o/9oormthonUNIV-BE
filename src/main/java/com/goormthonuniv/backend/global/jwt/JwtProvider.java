@@ -31,18 +31,18 @@ public class JwtProvider {
     }
 
     /**
-     * 사용자 이름(username)을 바탕으로 JWT 생성
-     * - subject : username
+     * 사용자 ID와 역할(Role)을 바탕으로 JWT 생성
      * - issuedAt : 생성 시간
      * - expiration : 만료 시간
      */
-    public String generateToken(String username) {
+    public String generateToken(Long userId, String role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + tokenValidity);
 
         return Jwts.builder()
-                .setSubject(username) // 사용자 식별값
-                .setIssuedAt(now)    // 발급 시간
+                .setSubject(String.valueOf(userId)) // subject는 사용자 식별자
+                .claim("role", role) // 커스텀 클레임: 역할
+                .setIssuedAt(now) // 발급 시간
                 .setExpiration(expiry) // 만료 시간
                 .signWith(secretKey, SignatureAlgorithm.HS256) // 서명
                 .compact(); // 최종 JWT 문자열 생성
@@ -67,12 +67,27 @@ public class JwtProvider {
     /**
      * 토큰에서 사용자 이름(username) 추출
      */
-    public String getUsernameFromToken(String token) {
-        return Jwts.parserBuilder()
+    public Long getUserIdFromToken(String token) {
+        String subject = Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token) // 토큰 파싱
                 .getBody()
-                .getSubject(); // subject = username
+                .getSubject();
+
+        return Long.parseLong(subject); // subject = userId (String)
+    }
+
+
+    /**
+     * 토큰에서 사용자 역할(role) 추출
+     */
+    public String getRoleFromToken(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
     }
 }
