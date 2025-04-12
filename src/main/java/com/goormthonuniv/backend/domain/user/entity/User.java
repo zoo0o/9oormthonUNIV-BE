@@ -1,6 +1,6 @@
 package com.goormthonuniv.backend.domain.user.entity;
 
-import com.goormthonuniv.backend.domain.user.dto.SignupRequest;
+import com.goormthonuniv.backend.domain.user.type.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

@@ -33,18 +33,24 @@ public class S3Uploader {
      * @return 업로드된 파일의 URL
      * @throws IOException 파일 입출력 중 예외 발생 시
      */
-    public String uploadFile(MultipartFile file) throws IOException {
-        // 파일 이름에 UUID를 붙여 중복 방지
-        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+    public String upload(MultipartFile file) {
+        try {
+            // 파일 이름에 UUID를 붙여 중복 방지
+            String fileName = "images/" + UUID.randomUUID() + "_" + file.getOriginalFilename();
 
-        // 파일의 메타데이터 설정
-        ObjectMetadata metadata = new ObjectMetadata();
-        metadata.setContentLength(file.getSize());
+            // 파일의 메타데이터 설정
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(file.getSize());
+            metadata.setContentType(file.getContentType());
 
-        // S3에 파일 업로드
-        amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
+            // S3에 파일 업로드
+            amazonS3.putObject(bucket, fileName, file.getInputStream(), metadata);
 
-        // 업로드된 파일의 URL 반환
-        return amazonS3.getUrl(bucket, fileName).toString();
+            // 업로드된 파일의 URL 반환
+            return amazonS3.getUrl(bucket, fileName).toString();
+        } catch (IOException e) {
+            // 여기서 예외를 RuntimeException 등으로 감싸서 던지면 됨
+            throw new RuntimeException("S3 파일 업로드 중 오류 발생", e);
+        }
     }
 }

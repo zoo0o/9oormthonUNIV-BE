@@ -1,5 +1,6 @@
 package com.goormthonuniv.backend.global.config;
 
+import com.goormthonuniv.backend.domain.auth.service.CustomUserDetailsService;
 import com.goormthonuniv.backend.global.jwt.JwtAuthenticationEntryPoint;
 import com.goormthonuniv.backend.global.jwt.JwtAuthenticationFilter;
 import com.goormthonuniv.backend.global.jwt.JwtProvider;
@@ -23,6 +24,8 @@ public class SecurityConfig {
 
     private final JwtProvider jwtProvider;
     private final JwtAuthenticationEntryPoint entryPoint;
+    private final CustomUserDetailsService customUserDetailsService; //DI 받기 위해 필요
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private static final String[] SWAGGER_WHITELIST = {
             "/v3/api-docs/**",
@@ -45,17 +48,10 @@ public class SecurityConfig {
                 .exceptionHandling(ex -> ex
                         .authenticationEntryPoint(entryPoint)
                 )
-                .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class); // ✅ Bean 사용
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 
         return http.build();
-    }
-
-    /**
-     * JwtAuthenticationFilter를 Bean으로 등록
-     */
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-        return new JwtAuthenticationFilter(jwtProvider); // 생성자에 주입되는 jwtProvider는 자동으로 DI
     }
 
     /**
@@ -76,4 +72,5 @@ public class SecurityConfig {
             AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
 }

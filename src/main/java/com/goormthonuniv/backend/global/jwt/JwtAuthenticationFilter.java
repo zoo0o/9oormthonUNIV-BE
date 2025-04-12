@@ -1,14 +1,18 @@
 package com.goormthonuniv.backend.global.jwt;
 
+import com.goormthonuniv.backend.domain.auth.service.CustomUserDetailsService;
 import io.micrometer.common.lang.NonNull;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -19,14 +23,12 @@ import java.util.List;
  * - 요청당 한 번 실행됨 (OncePerRequestFilter 상속)
  * - JWT 토큰을 검증하고, 인증 정보를 SecurityContext에 저장함
  */
+@Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
-
-    // 생성자 주입
-    public JwtAuthenticationFilter(JwtProvider jwtProvider) {
-        this.jwtProvider = jwtProvider;
-    }
+    private final CustomUserDetailsService customUserDetailsService;
 
     /**
      * 필터 내부 로직 처리 메서드
@@ -47,15 +49,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 2. 토큰이 존재하고, 유효한 경우에만 인증 처리
         if (token != null && jwtProvider.validateToken(token)) {
             // 3. 토큰에서 사용자 ID, 역할(Role) 추출
-            Long userId = jwtProvider.getUserIdFromToken(token);
-            String role = jwtProvider.getRoleFromToken(token); // ex) ROLE_USER
+            String username = jwtProvider.getUsernameFromToken(token);
+            UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
 
             // 4. 인증 객체 생성 (Spring Security에서 사용할 인증 정보)
             UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                            userId,                      // principal (식별자)
-                            null,                        // credentials (사용 X)
-                            List.of(new SimpleGrantedAuthority(role)) // 권한 목록
+                            userDetails,                 // principal
+                            null,                        // credentials
+                            userDetails.getAuthorities() // 권한
                     );
 
             // 5. 인증 객체에 요청 정보 부여 (IP, 세션 등)
