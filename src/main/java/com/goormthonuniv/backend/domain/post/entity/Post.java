@@ -34,4 +34,10 @@ public class Post {
         this.imageUrl = imageUrl;
         this.author = author;
     }
+
+    public void update(String title, String content, String imageUrl) {
+        this.title = title;
+        this.content = content;
+        this.imageUrl = imageUrl;
+    }
 }
