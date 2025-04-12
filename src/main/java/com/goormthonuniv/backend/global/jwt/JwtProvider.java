@@ -35,12 +35,13 @@ public class JwtProvider {
      * - issuedAt : 생성 시간
      * - expiration : 만료 시간
      */
-    public String generateToken(Long userId, String role) {
+    public String generateToken(Long userId, String username, String role) {
         Date now = new Date();
         Date expiry = new Date(now.getTime() + tokenValidity);
 
         return Jwts.builder()
                 .setSubject(String.valueOf(userId)) // subject는 사용자 식별자
+                .claim("username", username)
                 .claim("role", role) // 커스텀 클레임: 역할
                 .setIssuedAt(now) // 발급 시간
                 .setExpiration(expiry) // 만료 시간
@@ -54,10 +55,10 @@ public class JwtProvider {
      */
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
+            Jwts.parser()
                     .setSigningKey(secretKey) // 서명 검증을 위한 키 지정
                     .build()
-                    .parseClaimsJws(token);   // 토큰 파싱 시도
+                    .parseClaimsJws(token); // 토큰 파싱 시도
             return true;
         } catch (JwtException | IllegalArgumentException e) {
             return false; // 만료, 변조 등 예외 발생 시 false
@@ -65,29 +66,39 @@ public class JwtProvider {
     }
 
     /**
-     * 토큰에서 사용자 이름(username) 추출
+     * 토큰에서 사용자 ID 추출
      */
     public Long getUserIdFromToken(String token) {
-        String subject = Jwts.parserBuilder()
+        Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token) // 토큰 파싱
-                .getBody()
-                .getSubject();
+                .getBody();
 
-        return Long.parseLong(subject); // subject = userId (String)
+        return Long.parseLong(claims.getSubject()); // subject = userId (String)
     }
-
 
     /**
      * 토큰에서 사용자 역할(role) 추출
      */
     public String getRoleFromToken(String token) {
-        return Jwts.parserBuilder()
+        Claims claims = Jwts.parser()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(token) // 토큰 파싱
+                .getBody();
+
+        return claims.get("role", String.class); // 커스텀 클레임인 "role" 추출
+    }
+
+    public String getUsernameFromToken(String token) {
+        Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
                 .build()
                 .parseClaimsJws(token)
-                .getBody()
-                .get("role", String.class);
+                .getBody();
+
+        return claims.get("username", String.class);
     }
+
 }

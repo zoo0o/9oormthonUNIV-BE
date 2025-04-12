@@ -1,4 +1,4 @@
-package com.goormthonuniv.backend.domain.user.entity;
+package com.goormthonuniv.backend.domain.user.type;
 
 import lombok.Getter;
 
