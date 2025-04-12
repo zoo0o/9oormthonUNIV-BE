@@ -10,6 +10,7 @@ import com.goormthonuniv.backend.global.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,26 +26,23 @@ public class PostService {
     /**
      * 게시글 작성
      *
-     * @param request   게시글 요청 DTO
-     * @param username  로그인한 사용자명 (UserDetails에서 가져온 값)
      */
-    public PostCreateResponse createPost(PostCreateRequest request, String username) {
-        // 사용자 조회
+    @Transactional
+    public PostCreateResponse createPost(PostCreateRequest request, MultipartFile image, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new IllegalArgumentException("해당 사용자를 찾을 수 없습니다: " + username));
 
-        // 게시글 생성
+        String imageUrl = (image != null && !image.isEmpty()) ? s3Uploader.upload(image) : null;
+
         Post post = new Post(
                 request.getTitle(),
                 request.getContent(),
-                request.getImageUrl(),
+                imageUrl,
                 user
         );
 
-        // 저장
         Post savedPost = postRepository.save(post);
 
-        // 응답 반환
         return new PostCreateResponse(savedPost.getId());
     }
 

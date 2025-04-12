@@ -3,13 +3,18 @@ package com.goormthonuniv.backend.domain.post.controller;
 import com.goormthonuniv.backend.domain.post.dto.*;
 import com.goormthonuniv.backend.domain.post.service.PostService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -21,15 +26,17 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping
-    @Operation(summary = "게시글 생성", description = "새로운 게시글을 작성합니다.")
+    @PostMapping(consumes = {"multipart/form-data"})
+    @Operation(summary = "게시글 생성", description = "게시글과 이미지를 함께 업로드합니다.")
     public ResponseEntity<PostCreateResponse> createPost(
-            @RequestBody PostCreateRequest request,
+            @RequestPart("post") PostCreateRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image,
             @AuthenticationPrincipal UserDetails userDetails
     ) {
         String username = userDetails.getUsername();
-        return ResponseEntity.ok(postService.createPost(request, username));
+        return ResponseEntity.ok(postService.createPost(request, image, username));
     }
+
 
     @GetMapping
     @Operation(summary = "전체 게시글 조회", description = "모든 게시글을 최신순으로 조회합니다.")

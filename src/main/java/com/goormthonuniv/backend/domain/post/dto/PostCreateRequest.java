@@ -17,11 +17,8 @@ public class PostCreateRequest {
     @NotBlank
     private String content;
 
-    private String imageUrl;
-
-    public PostCreateRequest(String title, String content, String imageUrl) {
+    public PostCreateRequest(String title, String content) {
         this.title = title;
         this.content = content;
-        this.imageUrl = imageUrl;
     }
 }
