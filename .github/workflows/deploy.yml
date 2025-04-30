@@ -30,7 +30,7 @@ jobs:
             git fetch --all
             git reset --hard origin/main        # 최신 코드로 맞추기
 
-            docker compose build --pull --no-cache   # EC2에서 빌드할 땐 사용
+            docker compose build --no-cache   # EC2에서 빌드할 땐 사용
             # docker compose pull                    # 이미지 레지스트리 쓰면 이 줄만
 
             docker compose down
