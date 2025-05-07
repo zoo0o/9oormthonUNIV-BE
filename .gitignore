@@ -19,6 +19,7 @@ bin/
 
 # Spring 설정 파일 무시
 **/application.yml
+**/application.properties
 
 ### IntelliJ IDEA ###
 .idea
@@ -41,6 +42,11 @@ out/
 
 ### Docker ###
 /docker-compose.yml
+Dockerfile
 
 # macOS 시스템 파일
 .DS_Store
+
+.env
+backend-0.0.1-SNAPSHOT.jar
+backend-0.0.1-SNAPSHOT-plain.jar

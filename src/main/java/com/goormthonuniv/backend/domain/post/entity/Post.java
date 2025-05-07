@@ -1,10 +1,14 @@
 package com.goormthonuniv.backend.domain.post.entity;
 
+import com.goormthonuniv.backend.domain.comment.entity.Comment;
 import com.goormthonuniv.backend.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.AccessLevel;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -27,6 +31,10 @@ public class Post {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User author;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments = new ArrayList<>();
+
 
     public Post(String title, String content, String imageUrl, User author) {
         this.title = title;
